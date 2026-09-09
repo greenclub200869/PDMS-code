@@ -1,0 +1,89 @@
+<section class="page" data-page="attendance">
+  <div class="card">
+    <div class="card-head"><div><h2>นำเข้าและตรวจข้อมูลลงเวลา</h2><p class="muted">นำเข้าข้อมูลลงเวลาต้นทางเต็มเดือน และตรวจโครงสร้าง/สีจากไฟล์ต้นฉบับ</p></div><span class="badge info">นำเข้าข้อมูลต้นทาง</span></div>
+    <div class="notice info">ขั้นนี้ยังไม่ตัดสินว่า “ปกติ / สาย / ขาดสแกน / ลาครึ่งวัน” ระบบจะตรวจเฉพาะว่าอ่านคน แถว เวลา และสีพื้นหลังได้ถูกโครงสร้างก่อน</div>
+    <div class="grid two attendance-top-grid">
+      <label class="field"><span>เดือนที่นำเข้า</span><select id="attendanceMonth"></select><small>เลือกจากรอบ 6 เดือนที่ตั้งไว้ในระบบ</small></label>
+      <div class="field"><span>สถานะข้อมูลที่วาง</span><div id="attendancePasteStatus" class="paste-status">ยังไม่ได้วางข้อมูล</div><small>ต้องคัดลอกทั้งช่วงจาก Google Sheets/Excel โดยตรง ระบบจะตรวจ Rich HTML และจำนวนสีที่ Clipboard ส่งมาจริง</small></div>
+    </div>
+    <div id="attendancePasteBox" class="attendance-paste-box" tabindex="0" contenteditable="true" onpaste="PDMS.captureAttendancePaste(event)">
+      คลิกที่นี่ แล้วกด Ctrl+V เพื่อวางตารางลงเวลาทั้งเดือน รวม Header และข้อมูลบุคลากรทั้งหมด
+    </div>
+    <div class="row actions">
+      <button class="btn primary" onclick="PDMS.previewAttendance()">ตรวจข้อมูลก่อนนำเข้า</button>
+      <button class="btn" onclick="PDMS.clearAttendancePaste()">ล้างข้อมูลที่วาง</button>
+    </div>
+  </div>
+
+  <div class="card" id="attendancePreviewCard" style="display:none">
+    <div class="card-head"><div><h3>ตรวจผลข้อมูลก่อนนำเข้า</h3><p class="muted" id="attendancePreviewMeta"></p></div><span id="attendancePreviewBadge" class="badge neutral">ยังไม่ได้ตรวจ</span></div>
+    <div id="attendanceSummary" class="kpi-grid compact"></div>
+    <div id="attendanceIssues"></div>
+    <div id="attendanceColorDiagnostics"></div>
+    <div class="table-wrap pdms-sticky-table">
+      <table>
+        <thead><tr><th>EMP ID</th><th>ชื่อจากต้นทาง</th><th>ชื่อในระบบ</th><th>กลุ่มสาระ/ฝ่าย</th><th>รูปแบบแถว</th><th>แถวที่วาง</th><th>Resolver</th><th>หมายเหตุ</th></tr></thead>
+        <tbody id="attendancePeopleBody"></tbody>
+      </table>
+    </div>
+    <div class="row actions">
+      <button id="attendanceCommitBtn" class="btn primary" onclick="PDMS.commitAttendance()" disabled>ยืนยันใช้ข้อมูลลงเวลาต้นทางเดือนนี้</button>
+      <span class="muted">ยืนยันได้เมื่อ Blocker = 0 และระบบอ่านสีพื้นหลังจาก Clipboard ได้</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><div><h3>ดูข้อมูลลงเวลาต้นทางที่บันทึกแล้ว</h3><p class="muted">ส่วนนี้อ่านข้อมูลต้นทางทั้งชุด จึงโหลดเมื่อคุณกดเท่านั้น</p></div></div>
+    <div class="row actions"><button class="btn secondary" onclick="PDMS.loadAttendanceRawSummary(true)">โหลดสรุปข้อมูลต้นทาง</button></div>
+    <div id="attendanceRawSummary" class="muted">ยังไม่ได้โหลดสรุปข้อมูลต้นทาง</div>
+  </div>
+
+  <div class="card" id="attendanceA02Card">
+    <div class="card-head"><div><h3>ตรวจผลการประมวลผลและดูย้อนหลัง</h3><p class="muted">A02.1 V0.1.0 — โหลดข้อมูลเดือนเดียวครั้งเดียว แล้วสลับดู “ตารางรายเดือน” หรือ “รายละเอียดรายวัน” ได้โดยไม่คำนวณซ้ำ</p></div><span class="badge info">ดูอย่างเดียว</span></div>
+    <div class="notice info">มุมมองหลักเป็นตารางแบบต้นฉบับ: ชื่อ → กลุ่ม/ฝ่าย → ตำแหน่ง → วันที่ 1–30/31 และรักษาโครงสร้าง 1/2 แถวจริง สีพื้นหลังมาจาก ข้อมูลลงเวลาต้นทาง ส่วนรายละเอียดรายวันใช้ชุด Classification เดียวกันและเปิดแบบ โหลดเมื่อจำเป็น เพื่อลดภาระ/Timeout</div>
+    <div class="grid two">
+      <label class="field"><span>เดือนที่ต้องการดู</span><select id="attendanceHistoryMonth"></select><small>เลือกได้จาก ข้อมูลลงเวลาต้นทาง โดยไม่สลับ เดือนทำงาน</small></label>
+      <label class="field"><span>ค้นหา</span><input id="attendanceHistorySearch" placeholder="ชื่อ / EMP ID"></label>
+    </div>
+    <div class="grid three">
+      <label class="field"><span>กลุ่ม/ฝ่าย</span><select id="attendanceHistoryDepartment"><option value="">ทั้งหมด</option></select></label>
+      <label class="field"><span>ตำแหน่ง</span><select id="attendanceHistoryPosition"><option value="">ทั้งหมด</option></select></label>
+      <label class="field"><span>ผลการประมวลผล</span><select id="attendanceHistoryResult"><option value="">ทั้งหมด</option></select></label>
+    </div>
+    <div class="grid three">
+      <label class="field"><span>รูปแบบการประมวลผล</span><select id="attendanceHistoryMode"><option value="">ทั้งหมด</option><option value="PROCESS">ประมวลผลตามปกติ</option><option value="IGNORE">ไม่นำมาประมวลผล</option><option value="LEAVE_ONLY">ตรวจเฉพาะข้อมูลลา</option></select></label>
+      <label class="field"><span>เรียงลำดับ</span><select id="attendanceHistorySort"><option value="DEPARTMENT_NAME">กลุ่ม/ฝ่าย → ชื่อ</option><option value="NAME_ASC">ชื่อ ก → ฮ</option><option value="NAME_DESC">ชื่อ ฮ → ก</option><option value="POSITION_NAME">ตำแหน่ง → ชื่อ</option><option value="EMP_ID">EMP ID</option></select></label>
+      <label class="field"><span>เฉพาะรายการ</span><select id="attendanceHistoryQuick"><option value="">ทั้งหมด</option><option value="LEAVE">มีการลา</option><option value="OFFICIAL">มีราชการ</option><option value="LATE">มีมาสาย</option><option value="MISSING">มีขาดการสแกน</option><option value="REVIEW">มีรายการต้องตรวจ</option><option value="BLUE">มีหลักฐานสีฟ้า</option><option value="GREEN">มีหลักฐานสีเขียว</option></select></label>
+    </div>
+    <div class="row actions">
+      <button class="btn primary" onclick="PDMS.loadAttendanceMatrixDataset(true)">เปิดข้อมูลเดือนนี้</button>
+      <button class="btn" onclick="PDMS.applyAttendanceMatrixFilters()">ใช้ตัวกรอง/เรียง</button>
+      <button class="btn" onclick="PDMS.clearAttendanceMatrixFilters()">ล้างตัวกรอง</button>
+    </div>
+    <div id="attendanceA02Summary" class="kpi-grid compact"></div>
+    <div id="attendanceA02Meta" class="muted"></div>
+
+    <div class="attendance-view-tabs" style="margin-top:14px">
+      <button id="attendanceMatrixTab" class="btn primary" onclick="PDMS.attendanceViewTab('matrix')">ดูตารางลงเวลารายเดือน</button>
+      <button id="attendanceDailyTab" class="btn secondary" onclick="PDMS.attendanceViewTab('daily')">ดูรายละเอียดรายวัน</button>
+    </div>
+
+    <div id="attendanceMatrixView" style="margin-top:12px">
+      <div class="notice neutral">หัววันที่และคอลัมน์ซ้ายจะค้างขณะเลื่อน ตารางนี้แสดง ค่าต้นทาง + สีพื้นหลังจากต้นทาง ของแต่ละวัน ส่วนผลการประมวลผลกลาง ใช้สำหรับ ตัวกรอง และรายละเอียดเมื่อคลิกเซลล์</div>
+      <div id="attendanceMatrixWrap" class="attendance-matrix-wrap"><div class="empty">เลือกเดือนแล้วกด “เปิดข้อมูลเดือนนี้”</div></div>
+    </div>
+
+    <div id="attendanceDailyView" style="display:none;margin-top:12px">
+      <div class="grid two">
+        <label class="field"><span>วันที่เฉพาะ</span><input id="attendanceHistoryDate" type="date"><small>เว้นว่างเพื่อดูทั้งเดือน</small></label>
+        <label class="field"><span>จำนวนต่อหน้า</span><select id="attendanceHistoryPageSize"><option>50</option><option selected>100</option><option>200</option></select></label>
+      </div>
+      <div class="row actions"><button class="btn" onclick="PDMS.renderAttendanceDailyFromLoaded(1)">ใช้วันที่/จำนวนต่อหน้า</button></div>
+      <div class="table-wrap pdms-sticky-table"><table><thead><tr><th>วันที่</th><th>EMP ID</th><th>ชื่อ</th><th>กลุ่ม/ฝ่าย</th><th>ตำแหน่ง</th><th>เข้า</th><th>ออก</th><th>หลักฐาน</th><th>Operational</th><th>ผล</th><th>เหตุผล</th></tr></thead><tbody id="attendanceA02Body"><tr><td colspan="11" class="empty">ยังไม่ได้โหลดข้อมูล</td></tr></tbody></table></div>
+      <div class="row actions" id="attendanceA02Pager" style="justify-content:space-between"></div>
+    </div>
+  </div>
+
+  <div id="attendanceCellDetail" class="attendance-cell-detail" style="display:none" onclick="if(event.target===this)PDMS.closeAttendanceCellDetail()"><div class="attendance-cell-detail-card"><div class="card-head"><h3>ดูรายละเอียดวัน</h3><button class="btn secondary" onclick="PDMS.closeAttendanceCellDetail()">ปิด</button></div><div id="attendanceCellDetailBody"></div></div></div>
+
+</section>

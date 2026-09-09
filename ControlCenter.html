@@ -1,0 +1,8 @@
+<!doctype html><html><head><base target="_top"><style>
+body{font-family:Arial,sans-serif;margin:18px;color:#222}.card{border:1px solid #ddd;border-radius:10px;padding:14px;margin:10px 0}.ok{font-weight:bold}.muted{color:#666}.btn{padding:9px 13px;margin:4px;border:0;border-radius:7px;cursor:pointer}h2{margin-top:0}
+</style></head><body>
+<h2>PDMS — ศูนย์ควบคุม</h2><div id="app">กำลังอ่านสถานะ…</div>
+<script>
+function render(s){const health=s.health&&s.health.ok?'พร้อม':'ต้องตรวจ';const months=(s.period.months||[]).join(', ')||'ยังไม่ได้กำหนดรอบ';const jobs=(s.jobs||[]).length;document.getElementById('app').innerHTML=`<div class="card"><b>ระบบ:</b> ${health}<br><span class="muted">Version ${s.version}</span></div><div class="card"><b>รอบ:</b> ${months}</div><div class="card"><b>งานค้าง:</b> ${jobs}</div><div class="card muted">Foundation V0.1 สร้างแกนระบบแล้ว โมดูลลา/ลงเวลา/ตรวจรายการ/สถิติ/หนังสือจะเชื่อมบนแกนนี้โดยไม่ใช้ Working Month</div>`}
+google.script.run.withSuccessHandler(render).pdmscControlCenterState();
+</script></body></html>

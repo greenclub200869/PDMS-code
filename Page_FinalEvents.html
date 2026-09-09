@@ -1,0 +1,39 @@
+<section class="page" data-page="finalevents">
+  <div class="card">
+    <div class="section-head">
+      <div><h2>ตรวจผลก่อนบันทึกและยกเว้น</h2><p class="muted">ตรวจผลการมาทำงานของเดือนนี้ก่อนบันทึก เพื่อส่งต่อให้สถิติและการแจ้งเตือน</p></div>
+      <span class="badge warn">ตรวจสอบก่อนบันทึก</span>
+    </div>
+    <div class="filter-grid">
+      <label>เดือน<select id="finalEventMonth" onchange="PDMS.finalEventMonthChanged()"></select></label>
+      <label>ค้นหา<input id="finalEventSearch" placeholder="ชื่อ / EMP ID"></label>
+      <label>กลุ่ม/ฝ่าย<select id="finalEventDepartment"><option value="">ทั้งหมด</option></select></label>
+      <label>ประเภทเหตุการณ์<select id="finalEventType"><option value="">ทั้งหมด</option></select></label>
+      <label>ผลการตัดสิน<select id="finalEventDecision"><option value="">ทั้งหมด</option><option value="NORMAL">ปกติ/ยืนยัน</option><option value="EXCLUDED">ยกเว้น</option></select></label>
+      <label>ชนิดรายการ<select id="finalEventKind"><option value="">ทั้งหมด</option><option value="EVENT">เหตุการณ์ที่มีผล</option><option value="EXCLUDED">ยกเว้น</option><option value="REVIEW_BLOCKER">ต้องตรวจสอบก่อน</option></select></label>
+      <label>เรียงลำดับ<select id="finalEventSort" onchange="PDMS.applyFinalEventFilters(1)"><option value="DATE_NAME">วันที่ → ชื่อ</option><option value="NAME_DATE">ชื่อ → วันที่</option><option value="DEPARTMENT_NAME">กลุ่ม/ฝ่าย → ชื่อ</option><option value="TYPE_DATE">ประเภท → วันที่</option></select></label>
+      <label>จำนวนต่อหน้า<select id="finalEventPageSize" onchange="PDMS.applyFinalEventFilters(1)"><option>50</option><option>100</option><option>200</option></select></label>
+    </div>
+    <div class="action-wrap" style="margin-top:10px"><button class="btn primary" onclick="PDMS.loadFinalEventPreview(1,true)">โหลด/รีเฟรชข้อมูลเดือนนี้</button><button class="btn secondary" onclick="PDMS.applyFinalEventFilters(1)">ใช้ตัวกรอง</button><button class="btn secondary" onclick="PDMS.clearFinalEventFilters()">ล้างตัวกรอง</button></div>
+    <div style="margin-top:12px"><div class="muted" style="margin-bottom:6px"><b>ตรวจเร็ว</b> — หลังโหลดแล้ว ปุ่มด้านล่างกรองจากข้อมูลในหน้านี้ทันที ไม่ประมวลผลเดือนใหม่</div><div id="finalEventQuickFilters" class="action-wrap"></div></div>
+  </div>
+
+  <div id="finalEventSummary" class="kpi-grid"></div>
+  <div id="finalEventReconcile" class="card"></div>
+  <div id="finalEventBlockers"></div>
+
+  <div class="card">
+    <div class="section-head"><div><h3>ตรวจรายการก่อนบันทึกและเลือกยกเว้น</h3><div id="finalEventMeta" class="muted"></div></div></div>
+    <div class="notice neutral" style="margin-bottom:10px"><b>ยกเว้นก่อนเข้าสถิติ</b> — เลือกเฉพาะเหตุการณ์ที่บันทึกไว้แล้ว หากยกเว้น รายการยังคงอยู่ในประวัติ แต่จะไม่นับสถิติและไม่ส่งต่อไปการแจ้งเตือน</div>
+    <div class="action-wrap" style="margin-bottom:10px"><span id="finalEventSelectedCount" class="badge neutral">เลือก 0 รายการ</span><button id="finalEventExcludeBtn" class="btn danger" disabled onclick="PDMS.applyFinalEventDecision('EXCLUDED')">ยกเว้นรายการที่เลือก</button><button id="finalEventRestoreBtn" class="btn secondary" disabled onclick="PDMS.applyFinalEventDecision('NORMAL')">ยกเลิกการยกเว้น</button></div>
+    <div class="table-wrap pdms-sticky-table"><table><thead><tr><th><input id="finalEventSelectPage" type="checkbox" title="เลือก/ยกเลิกรายการในหน้านี้" onchange="PDMS.toggleFinalEventPageSelection(this.checked)"></th><th>วันที่</th><th>EMP ID</th><th>ชื่อ</th><th>กลุ่ม/ฝ่าย</th><th>ชนิด</th><th>เหตุการณ์</th><th>ผลการตัดสิน</th><th>เข้า / ออก</th><th>หลักฐาน</th><th>เหตุผล</th></tr></thead><tbody id="finalEventBody"><tr><td colspan="11" class="empty">ยังไม่ได้โหลดผลตรวจสอบ</td></tr></tbody></table></div>
+    <div id="finalEventPager" class="pager"></div>
+  </div>
+
+  <div class="card">
+    <h3>ยืนยันบันทึกผลของเดือนนี้</h3>
+    <p class="muted">ระบบจะบันทึกเฉพาะเหตุการณ์ที่มีผลจริง เช่น มาสาย ขาดการสแกน ลา และไปราชการ ส่วนวันปกติหรือวันที่ไม่นำมานับจะไม่สร้างรายการใหม่ หากเคยบันทึกเดือนนี้แล้ว ระบบจะเก็บรุ่นเดิมเป็นประวัติและสร้างรุ่นใหม่</p>
+    <div id="finalEventCommitNote" class="notice neutral">กรุณาโหลดและตรวจผลก่อนบันทึก</div>
+    <div class="action-wrap" style="margin-top:10px"><button id="finalEventCommitBtn" class="btn danger" disabled onclick="PDMS.commitFinalEvents()">บันทึกผลของเดือนนี้</button></div>
+  </div>
+</section>

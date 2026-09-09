@@ -1,0 +1,28 @@
+<section class="page" data-page="review">
+  <div class="card">
+    <div class="card-head"><div><h2>ตรวจสอบและตัดสินรายการกำกวม</h2><p class="muted">เปิดหน้าแบบเบา และโหลดรายการที่ต้องตรวจเฉพาะเมื่อสั่ง เพื่อป้องกัน Timeout</p></div><span class="badge info">Lazy Review</span></div>
+    <div class="notice info">หน้านี้โหลดเฉพาะรายการที่ระบบกลางระบุว่า “ต้องตรวจ” โดยไม่โหลดข้อมูลทั้งเดือนทั้งหมด และยังไม่บันทึกผลใช้งานจริง การตัดสินจะเก็บรหัสยืนยันข้อมูลและประวัติการเปลี่ยนแปลง เพื่อให้รายการที่ข้อมูลต้นทางเปลี่ยนกลับมาเป็น “ต้องยืนยันใหม่” อัตโนมัติ</div>
+    <div class="review-filter-grid">
+      <label><span>เดือน</span><select id="reviewMonth" class="input full"></select></label>
+      <label><span>ค้นหา</span><input id="reviewSearch" class="input full" placeholder="ชื่อ / EMP ID"></label>
+      <label><span>กลุ่ม/ฝ่าย</span><select id="reviewDepartment" class="input full"><option value="">ทั้งหมด</option></select></label>
+      <label><span>วันที่</span><input id="reviewDate" type="date" class="input full"></label>
+      <label><span>ประเภทปัญหา</span><select id="reviewCode" class="input full"><option value="">ทั้งหมด</option></select></label>
+      <label><span>สถานะ</span><select id="reviewStatus" class="input full"><option value="">ทั้งหมด</option><option value="PENDING">รอตรวจ</option><option value="DECIDED">ตัดสินแล้ว</option><option value="STALE">ต้องยืนยันใหม่</option></select></label>
+      <label><span>ผลการตัดสิน</span><select id="reviewDecision" class="input full"><option value="">ทั้งหมด</option><option value="PENDING">รอตรวจ</option><option value="NORMAL">ยืนยัน</option><option value="EXCLUDED">ยกเว้น</option></select></label>
+      <label><span>เรียงลำดับ</span><select id="reviewSort" class="input full"><option value="DATE_NAME">วันที่ → ชื่อ</option><option value="NAME_DATE">ชื่อ → วันที่</option><option value="DEPARTMENT_NAME">กลุ่ม/ฝ่าย → ชื่อ</option><option value="TYPE_DATE">ประเภทปัญหา → วันที่</option></select></label>
+      <label><span>จำนวนต่อหน้า</span><select id="reviewPageSize" class="input full"><option selected>50</option><option>100</option><option>200</option></select></label>
+    </div>
+    <div class="row actions"><button class="btn primary" onclick="PDMS.loadReviewDataset(true)">โหลด/รีเฟรชรายการกำกวม</button><button class="btn secondary" onclick="PDMS.loadReviewList(1,false)">ใช้ตัวกรอง</button><button class="btn secondary" onclick="PDMS.clearReviewFilters()">ล้างตัวกรอง</button></div><div class="helper">การเปิดหน้านี้จะไม่ประมวลผลทั้งเดือนอัตโนมัติ เมื่อโหลดแล้ว ตัวกรอง/ตัวเรียง/เปลี่ยนหน้าจะทำใน Browser จากข้อมูลชุดเดิม</div>
+  </div>
+
+  <div class="kpi-grid compact review-kpis" id="reviewSummary"></div>
+
+  <div class="card">
+    <div class="card-head"><div><h3>ตรวจรายการกำกวมที่ระบบพบ</h3><p class="muted" id="reviewMeta">ยังไม่ได้โหลด</p></div></div>
+    <div class="table-wrap pdms-sticky-table review-table-wrap"><table><thead><tr><th>วันที่</th><th>EMP ID</th><th>ชื่อ</th><th>กลุ่ม/ฝ่าย</th><th>ประเภทปัญหา</th><th>ข้อมูลต้นทาง</th><th>เหตุผล</th><th>สถานะ</th><th>ผลการตัดสิน</th><th></th></tr></thead><tbody id="reviewBody"><tr><td colspan="10" class="empty">ยังไม่มีข้อมูล</td></tr></tbody></table></div>
+    <div class="leave-pager" id="reviewPager"></div>
+  </div>
+
+  <div id="reviewDetailModal" class="attendance-cell-detail" style="display:none" onclick="if(event.target===this)PDMS.closeReviewDetail()"><div class="attendance-cell-detail-card review-detail-card"><div class="card-head"><div><h3>ตรวจรายละเอียดและตัดสินรายการกำกวม</h3><p class="muted" id="reviewDetailMeta"></p></div><button class="btn secondary" onclick="PDMS.closeReviewDetail()">ปิด</button></div><div id="reviewDetailBody"></div><div class="review-decision-box"><label class="field"><span>เหตุผล / หมายเหตุ</span><textarea id="reviewDecisionNote" class="paste-box review-note" placeholder="ระบุเหตุผล โดยเฉพาะเมื่อเลือกยกเว้น"></textarea></label><div class="row actions"><button class="btn primary" onclick="PDMS.saveReviewDecision('NORMAL')">ยืนยัน</button><button class="btn danger" onclick="PDMS.saveReviewDecision('EXCLUDED')">ยกเว้น</button></div><div class="helper">ยืนยัน = รับผลการตรวจของรายการนี้ไว้ใน Audit Trail; ยกเว้น = ไม่นับสถิติและไม่ส่งต่อไปการแจ้งเตือน ส่วนการยกเว้นเฉพาะหนังสือแต่ยังเก็บสถิติจะจัดการในขั้น Warning ภายหลัง</div></div><div id="reviewHistory"></div></div></div>
+</section>

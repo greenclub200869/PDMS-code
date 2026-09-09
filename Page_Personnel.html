@@ -1,0 +1,174 @@
+<section class="page" data-page="personnel">
+  <div class="card">
+    <div class="section-title">จัดการข้อมูลบุคลากร</div>
+    <div class="section-sub">จัดการรายชื่อ การจับคู่ชื่อ รายชื่อไม่ต้องประมวลผล และ QA ผ่าน Web App</div>
+    <div class="subtabs" id="personnelTabs">
+      <button class="subtab active" data-sub="people" onclick="PDMS.personnelTab('people',this)">ดูและจัดการรายชื่อบุคลากร</button>
+      <button class="subtab" data-sub="alias" onclick="PDMS.personnelTab('alias',this)">จับคู่ชื่อและ Alias</button>
+      <button class="subtab" data-sub="scope" onclick="PDMS.personnelTab('scope',this)">กำหนดบุคลากรที่ไม่ต้องประมวลผล</button>
+      <button class="subtab" data-sub="qa" onclick="PDMS.personnelTab('qa',this)">ตรวจความถูกต้องข้อมูลบุคลากร</button>
+    </div>
+  </div>
+
+  <div class="person-sub active" data-person-sub="people">
+    <div class="card">
+      <div class="section-title">นำเข้ารายชื่อทั้งชุดจากหน้า 10 เก่า</div>
+      <div class="section-sub">Copy A:F ได้ตรง ๆ: EMP_ID | ชื่อ-นามสกุล | ตำแหน่ง | กลุ่มสาระ | Active | ชื่อสำหรับจับคู่</div>
+      <textarea id="personBulkPaste" class="paste-box" placeholder="วางข้อมูล A:F จากหน้า 10_จัดการรายชื่อครู"></textarea>
+      <div class="toolbar" style="margin-top:10px">
+        <button class="btn primary" onclick="PDMS.previewPersonnelBulk()">ตรวจรายชื่อก่อนนำเข้า</button>
+        <button class="btn secondary" onclick="document.getElementById('personBulkPaste').value=''">ล้าง</button>
+      </div>
+      <div id="personBulkPreview" style="display:none">
+        <div id="personBulkCounts" class="leave-counts"></div>
+        <div class="table-wrap pdms-sticky-table">
+          <table><thead><tr><th>สถานะ</th><th>EMP ID</th><th>ชื่อ</th><th>ตำแหน่ง</th><th>กลุ่มสาระ</th><th>Active</th><th>ชื่อสำหรับจับคู่</th><th>เหตุผล</th></tr></thead>
+          <tbody id="personBulkBody"></tbody></table>
+        </div>
+        <div class="toolbar" style="margin-top:10px">
+          <button class="btn primary" id="personBulkCommitBtn" onclick="PDMS.commitPersonnelBulk()">ยืนยันนำเข้า</button>
+          <span class="kpi-note">EMP เดิมจะแสดง UPDATE_EXISTING ก่อนแก้จริง และไม่มีการปิดคนที่หายจากรายการอัตโนมัติ</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title" id="personFormTitle">เพิ่มบุคลากรใหม่</div>
+      <div class="form-grid">
+        <label>EMP ID
+          <input class="input full" id="pfEmp" placeholder="ว่าง = สร้างอัตโนมัติ">
+        </label>
+        <label>ชื่อ-นามสกุล
+          <input class="input full" id="pfName">
+        </label>
+        <label>ตำแหน่ง
+          <select class="input full" id="pfPosition"></select>
+        </label>
+        <label>กลุ่ม/ฝ่าย
+          <select class="input full" id="pfDepartment"></select>
+        </label>
+        <label>วันที่เริ่มงาน (ถ้าไม่ทราบให้เว้นว่าง)
+          <input class="input full" id="pfEmploymentStart" type="date">
+        </label>
+        <label>วันที่สิ้นสุดงาน (ถ้ายังทำงานอยู่ให้เว้นว่าง)
+          <input class="input full" id="pfEmploymentEnd" type="date">
+        </label>
+        <label class="span-2">หมายเหตุ
+          <input class="input full" id="pfNote">
+        </label>
+        <label class="checkline">
+          <input type="checkbox" id="pfActive" checked> ใช้งาน
+        </label>
+      </div>
+      <div class="toolbar" style="margin-top:12px">
+        <button class="btn primary" onclick="PDMS.savePerson()">บันทึก</button>
+        <button class="btn secondary" onclick="PDMS.newPerson()">เพิ่มคนใหม่</button>
+        <span id="personModeNote" class="kpi-note">CREATE MODE — EMP ID ซ้ำจะถูก BLOCK</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="leave-filter-grid compact-grid">
+        <label>ค้นหา<input class="input full" id="personSearch" placeholder="EMP ID / ชื่อ / ตำแหน่ง"></label>
+        <label>กลุ่มสาระ/ฝ่าย<select class="input full" id="personDepartmentFilter"><option value="">ทั้งหมด</option></select></label>
+        <label>เรียงข้อมูล<select class="input full" id="personSort"><option value="EMP_ASC">EMP ID</option><option value="NAME_ASC">ชื่อ ก → ฮ</option><option value="DEPARTMENT_ASC">กลุ่มสาระ/ฝ่าย → ชื่อ</option><option value="POSITION_ASC">ตำแหน่ง → ชื่อ</option></select></label>
+      </div>
+      <div class="toolbar">
+        <button class="btn primary" onclick="PDMS.loadPersonnel()">ใช้ตัวกรอง</button>
+        <button class="btn secondary" onclick="PDMS.clearPersonnelFilters()">ล้างตัวกรอง</button>
+        <span id="personCount" class="kpi-note"></span>
+      </div>
+      <div class="table-wrap pdms-sticky-table">
+        <table>
+          <thead><tr><th>EMP ID</th><th>ชื่อ-นามสกุล</th><th>ตำแหน่ง</th><th>กลุ่ม/ฝ่าย</th><th>ช่วงการจ้างงาน</th><th>สถานะ</th><th>จัดการ</th></tr></thead>
+          <tbody id="personBody"><tr><td colspan="7" class="empty">ยังไม่ได้โหลด</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="person-sub" data-person-sub="alias">
+    <div class="card">
+      <div class="section-title">เพิ่มหรืออัปเดต Alias สำหรับจับคู่ชื่อ</div>
+      <div class="form-grid">
+        <label>ชื่อจากแหล่งข้อมูล
+          <input class="input full" id="aliasSource">
+        </label>
+        <label>บุคลากร
+          <select class="input full" id="aliasEmp"></select>
+        </label>
+        <label class="span-2">หมายเหตุ
+          <input class="input full" id="aliasNote">
+        </label>
+      </div>
+      <div class="toolbar" style="margin-top:12px">
+        <button class="btn primary" onclick="PDMS.saveAlias()">บันทึก Alias</button>
+        <button class="btn secondary" onclick="PDMS.loadAliases()">รีเฟรช</button>
+        <span id="aliasCount" class="kpi-note"></span>
+      </div>
+      <div class="leave-filter-grid compact-grid" style="margin-top:12px">
+        <label>ค้นหา Alias / ชื่อหลัก<input class="input full" id="aliasSearch" oninput="PDMS.renderAliases()"></label>
+        <label>กลุ่มสาระ/ฝ่าย<select class="input full" id="aliasDepartmentFilter" onchange="PDMS.renderAliases()"><option value="">ทั้งหมด</option></select></label>
+        <label>เรียงข้อมูล<select class="input full" id="aliasSort" onchange="PDMS.renderAliases()"><option value="SOURCE_ASC">ชื่อจากต้นทาง</option><option value="NAME_ASC">ชื่อหลัก</option><option value="DEPARTMENT_ASC">กลุ่มสาระ/ฝ่าย → ชื่อ</option></select></label>
+      </div>
+    </div>
+    <div class="card">
+      <div class="table-wrap pdms-sticky-table">
+        <table>
+          <thead><tr><th>ชื่อจากต้นทาง</th><th>EMP ID</th><th>ชื่อหลัก</th><th>กลุ่มสาระ/ฝ่าย</th><th>สถานะ</th><th>หมายเหตุ</th><th>จัดการ</th></tr></thead>
+          <tbody id="aliasBody"><tr><td colspan="7" class="empty">ยังไม่ได้โหลด</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="person-sub" data-person-sub="scope">
+    <div class="card">
+      <div class="section-title">กำหนดรายการที่ไม่ต้องประมวลผล</div>
+      <div class="section-sub">ขอบเขตบุคลากรที่ใช้ประมวลผล แยกจากการยกเว้นเหตุการณ์และนโยบายการแจ้งเตือน</div>
+      <div class="form-grid">
+        <label>ประเภท
+          <select class="input full" id="scopeType" onchange="PDMS.scopeTypeChanged()">
+            <option value="EMP_ID">บุคลากร (EMP ID)</option>
+            <option value="SOURCE_NAME">ชื่อจากแหล่งข้อมูล</option>
+          </select>
+        </label>
+        <label id="scopeEmpWrap">บุคลากร
+          <select class="input full" id="scopeEmp"></select>
+        </label>
+        <label id="scopeNameWrap" style="display:none">ชื่อจากแหล่งข้อมูล
+          <input class="input full" id="scopeName">
+        </label>
+        <label>เหตุผล
+          <input class="input full" id="scopeReason">
+        </label>
+        <label class="span-2">หมายเหตุ
+          <input class="input full" id="scopeNote">
+        </label>
+      </div>
+      <div class="toolbar" style="margin-top:12px">
+        <button class="btn primary" onclick="PDMS.saveScope()">เพิ่ม / อัปเดต</button>
+        <button class="btn secondary" onclick="PDMS.loadScopes()">รีเฟรช</button>
+        <span id="scopeCount" class="kpi-note"></span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="table-wrap pdms-sticky-table">
+        <table>
+          <thead><tr><th>ประเภท</th><th>บุคคล/ชื่อ</th><th>กลุ่มสาระ/ฝ่าย</th><th>เหตุผล</th><th>สถานะ</th><th>หมายเหตุ</th><th>จัดการ</th></tr></thead>
+          <tbody id="scopeBody"><tr><td colspan="7" class="empty">ยังไม่ได้โหลด</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="person-sub" data-person-sub="qa">
+    <div class="card">
+      <div class="section-title">ตรวจความถูกต้องข้อมูลบุคลากร</div>
+      <div class="toolbar">
+        <button class="btn primary" onclick="PDMS.loadPersonnelQa()">ตรวจสอบตอนนี้</button>
+      </div>
+      <div id="personQaBox" class="empty">ยังไม่ได้ตรวจ</div>
+    </div>
+  </div>
+</section>

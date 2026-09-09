@@ -1,0 +1,74 @@
+<section class="page" data-page="leave">
+  <div class="card">
+    <div class="section-title">นำเข้าและจัดการข้อมูลลา</div>
+    <div class="section-sub">เลือกรอบจาก Period Master ในหน้า “ตั้งค่า” แล้วคัดลอกข้อมูลจาก STC/ตารางเดิมทั้งชุด ระบบจะเทียบและแสดงเฉพาะความเปลี่ยนแปลง</div>
+    <div id="leavePeriodBox" class="toolbar"></div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">1) วางข้อมูลลาของรอบ 6 เดือน</div>
+    <div class="section-sub">รองรับ 12 คอลัมน์เดิม: ลำดับ | ชื่อ | ตำแหน่ง | ประเภทการลา | เริ่มต้น | สิ้นสุด | จำนวนวัน | ...</div>
+    <textarea id="leavePaste" class="paste-box" placeholder="คัดลอกจาก Excel/Google Sheets แล้ววางที่นี่"></textarea>
+    <div class="toolbar" style="margin-top:10px">
+      <button class="btn primary" onclick="PDMS.previewLeave()">ตรวจความเปลี่ยนแปลงก่อนบันทึก</button>
+      <button class="btn secondary" onclick="document.getElementById('leavePaste').value=''">ล้างช่องวาง</button>
+    </div>
+  </div>
+
+  <div class="card" id="leavePreviewCard" style="display:none">
+    <div class="section-title">2) ตรวจความเปลี่ยนแปลงก่อนบันทึก</div>
+    <div id="leaveCounts" class="leave-counts"></div>
+    <div id="leavePreviewNote" class="section-sub"></div>
+    <div class="toolbar leave-preview-tools">
+      <label>แสดงผลตรวจสอบก่อนบันทึก
+        <select id="leavePreviewFilter" class="input compact" onchange="PDMS.renderLeavePreview()">
+          <option value="ALL">ทั้งหมดที่มีการเปลี่ยนแปลง</option>
+          <option value="ATTENTION">เฉพาะรายการที่ต้องสนใจ</option>
+          <option value="INVALID">ข้อมูลไม่ถูกต้อง</option><option value="REVIEW">ต้องตรวจสอบ</option><option value="CORRECTION">รายการแก้ไข</option>
+          <option value="REMOVED">รายการที่ถูกนำออก</option><option value="MERGED">รายการที่ถูกรวม</option><option value="SPLIT">รายการที่ถูกแยก</option><option value="EXCLUDED">ไม่นำมาคำนวณ</option><option value="NEW">รายการใหม่</option>
+        </select>
+      </label>
+      <label>กลุ่มสาระ/ฝ่าย
+        <select id="leavePreviewDepartment" class="input compact" onchange="PDMS.renderLeavePreview()"><option value="">ทั้งหมด</option></select>
+      </label>
+      <span class="kpi-note">รายการที่ไม่ถูกต้อง/ต้องตรวจสอบ/แก้ไข/ถูกนำออก และรายการผิดปกติอื่นจะแสดงก่อนรายการใหม่เสมอ</span>
+    </div>
+    <div class="table-wrap pdms-sticky-table">
+      <table>
+        <thead><tr><th>สถานะ</th><th>EMP ID</th><th>ชื่อ</th><th>กลุ่มสาระ/ฝ่าย</th><th>ประเภท</th><th>เริ่ม</th><th>สิ้นสุด</th><th>วัน</th><th>เหตุผล</th></tr></thead>
+        <tbody id="leavePreviewBody"></tbody>
+      </table>
+    </div>
+    <div class="toolbar" style="margin-top:12px">
+      <button class="btn primary" id="leaveCommitBtn" onclick="PDMS.commitLeave()">ยืนยันใช้ข้อมูลชุดนี้</button>
+      <span class="kpi-note">รายการที่ต้องตรวจสอบหรือข้อมูลไม่ถูกต้องจะยังไม่สามารถยืนยันได้ เพื่อป้องกันข้อมูลผิดพลาด</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">3) ดูและจัดการข้อมูลลาที่ใช้งานอยู่</div>
+    <div class="section-sub">ตัวกรองและการเรียงจะคงเดิมเมื่อกดหน้าถัดไป/ก่อนหน้า และจะเปลี่ยนหน้าโดยไม่รีเซ็ตค่าที่เลือก</div>
+    <div class="leave-filter-grid">
+      <label>ค้นหาชื่อ / EMP ID<input id="leaveActiveSearch" class="input full" placeholder="เช่น สุธาสินี หรือ EMP0097"></label>
+      <label>ประเภทการลา<select id="leaveActiveType" class="input full"><option value="">ทั้งหมด</option></select></label>
+      <label>กลุ่มสาระ/ฝ่าย<select id="leaveActiveDepartment" class="input full"><option value="">ทั้งหมด</option></select></label>
+      <label>ตั้งแต่วันที่<input id="leaveActiveFrom" type="date" class="input full"></label>
+      <label>ถึงวันที่<input id="leaveActiveTo" type="date" class="input full"></label>
+      <label>เรียงข้อมูล<select id="leaveActiveSort" class="input full"><option value="DATE_DESC">วันที่ใหม่ → เก่า</option><option value="DATE_ASC">วันที่เก่า → ใหม่</option><option value="NAME_ASC">ชื่อ ก → ฮ</option><option value="TYPE_ASC">ประเภทการลา</option><option value="DEPARTMENT_ASC">กลุ่มสาระ/ฝ่าย → ชื่อ</option></select></label>
+      <label>ต่อหน้า<select id="leaveActivePageSize" class="input full"><option value="50">50</option><option value="100" selected>100</option><option value="200">200</option></select></label>
+    </div>
+    <div class="toolbar">
+      <button class="btn primary" onclick="PDMS.applyLeaveActiveFilters()">ใช้ตัวกรอง</button>
+      <button class="btn secondary" onclick="PDMS.clearLeaveActiveFilters()">ล้างตัวกรอง</button>
+      <button class="btn secondary" onclick="PDMS.loadLeaveActive()">รีเฟรชโดยคงตัวกรอง</button>
+      <span id="leaveActiveCount" class="kpi-note">เพื่อให้หน้าเปิดเร็ว ระบบไม่โหลดรายการทั้งหมดอัตโนมัติ</span>
+    </div>
+    <div class="table-wrap pdms-sticky-table">
+      <table>
+        <thead><tr><th>EMP ID</th><th>ชื่อ</th><th>กลุ่มสาระ/ฝ่าย</th><th>ประเภท</th><th>เริ่ม</th><th>สิ้นสุด</th><th>วัน</th></tr></thead>
+        <tbody id="leaveActiveBody"><tr><td colspan="7" class="empty">ยังไม่ได้โหลด</td></tr></tbody>
+      </table>
+    </div>
+    <div id="leaveActivePager" class="leave-pager"></div>
+  </div>
+</section>

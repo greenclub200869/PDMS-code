@@ -1,0 +1,26 @@
+<section class="page active" data-page="dashboard">
+  <div class="grid">
+    <div class="card"><div class="kpi-label">สถานะพร้อมใช้งาน</div><div class="kpi-value" id="kpiHealth">...</div><div class="kpi-note" id="kpiHealthNote"></div></div>
+    <div class="card"><div class="kpi-label">บุคลากร</div><div class="kpi-value" id="kpiPeople">0</div><div class="kpi-note">รวมใน Personnel Master</div></div>
+    <div class="card"><div class="kpi-label">Alias</div><div class="kpi-value" id="kpiAliases">0</div><div class="kpi-note">ชื่อที่ใช้จับคู่ข้อมูลต้นทาง</div></div>
+    <div class="card"><div class="kpi-label">งานที่ยังเปิดอยู่</div><div class="kpi-value" id="kpiJobs">0</div><div class="kpi-note">งานที่กำลังทำ / สถานะกู้คืน</div></div>
+  </div>
+
+  <div class="two">
+    <div class="card">
+      <div class="section-title">ดูรอบการทำงาน 6 เดือน</div>
+      <div class="section-sub">ไม่มี Working Month — แต่ละโมดูลจะเลือกเดือนของตัวเอง</div>
+      <div id="periodMonths" class="empty">ยังไม่ได้ตั้งรอบ</div>
+    </div>
+    <div class="card">
+      <div class="section-title">รายการที่ควรติดตาม</div>
+      <div id="dashboardIssues" class="empty">กำลังโหลดสรุป...</div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:12px">
+    <div class="section-title">ดูสถานะโมดูลของระบบ</div>
+    <div class="section-sub">แสดงสถานะเปิดใช้งานของแต่ละโมดูล โดยไม่รันการตรวจสุขภาพเต็มรูปแบบในหน้าแรก</div>
+    <div id="moduleCards"></div>
+  </div>
+</section>

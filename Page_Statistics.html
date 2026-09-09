@@ -1,0 +1,62 @@
+<section class="page" data-page="statistics">
+  <div class="card">
+    <div class="card-head"><div><h2>ดูสถิติและรายละเอียด</h2><p class="muted">อ่านจากผลที่ระบบกลางคำนวณและบันทึกไว้แล้ว: การลาใช้ข้อมูลการลาที่ระบบรับรอง และเหตุการณ์ลงเวลาใช้ผลที่บันทึกใช้งานอยู่ โดยไม่นำรายการ “ยกเว้น” มานับ</p></div></div>
+    <div class="notice neutral" style="margin-bottom:12px"><b>โหลดแบบเบา</b> — เปิดหน้านี้จะยังไม่ดึงข้อมูลทั้งเดือน กด “โหลด/รีเฟรชสถิติเดือนนี้” เมื่อพร้อม</div>
+    <div class="grid cols-4">
+      <label class="field"><span>เดือน</span><select id="statsMonth"></select></label>
+      <label class="field"><span>ค้นหา</span><input id="statsSearch" placeholder="ชื่อ / EMP ID" oninput="PDMS.applyStatisticsFilters(1)"></label>
+      <label class="field"><span>กลุ่ม/ฝ่าย</span><select id="statsDepartment" onchange="PDMS.applyStatisticsFilters(1)"><option value="">ทั้งหมด</option></select></label>
+      <label class="field"><span>ประเภทเหตุการณ์</span><select id="statsEventType" onchange="PDMS.applyStatisticsFilters(1)"><option value="">ทั้งหมด</option></select></label>
+    </div>
+    <div class="grid cols-4" style="margin-top:8px">
+      <label class="field"><span>สถานะ</span><select id="statsHasEvent" onchange="PDMS.applyStatisticsFilters(1)"><option value="ALL">ทั้งหมด</option><option value="HAS">มีเหตุการณ์/การลา</option><option value="NONE">ไม่มีเหตุการณ์/การลา</option></select></label>
+      <label class="field"><span>เรียงลำดับ</span><select id="statsSort" onchange="PDMS.applyStatisticsFilters(1)"><option value="TOTAL_DESC">จำนวนรวมมาก → น้อย</option><option value="NAME_ASC">ชื่อ ก → ฮ</option><option value="DEPT_ASC">กลุ่ม/ฝ่าย → ชื่อ</option></select></label>
+      <label class="field"><span>จำนวนต่อหน้า</span><select id="statsPageSize" onchange="PDMS.applyStatisticsFilters(1)"><option>50</option><option>100</option><option>200</option></select></label>
+      <div class="field"><span>&nbsp;</span><div class="row actions"><button class="btn primary" onclick="PDMS.loadStatisticsDataset(true)">โหลด/รีเฟรชสถิติเดือนนี้</button><button class="btn secondary" onclick="PDMS.clearStatisticsFilters()">ล้างตัวกรอง</button></div></div>
+    </div>
+  </div>
+  <div id="statsNotLoaded" class="card placeholder"><h3>ยังไม่ได้โหลดสถิติของเดือนนี้</h3><p>เลือกเดือน แล้วกด <b>โหลด/รีเฟรชสถิติเดือนนี้</b></p></div>
+  <div id="statsLoaded" style="display:none">
+    <div class="subtabs statistics-view-tabs">
+      <button id="statsViewOverallBtn" class="subtab active" onclick="PDMS.setStatisticsView('OVERALL')">ดูสรุปทั้งหมด</button>
+      <button id="statsViewLeaveBtn" class="subtab" onclick="PDMS.setStatisticsView('LEAVE')">ดูรายละเอียดการลา</button>
+      <button id="statsViewLateBtn" class="subtab" onclick="PDMS.setStatisticsView('LATE')">ดูรายละเอียดการมาสาย</button>
+      <button id="statsViewOfficialBtn" class="subtab" onclick="PDMS.setStatisticsView('OFFICIAL')">ดูรายละเอียดไปราชการ</button>
+    </div>
+    <div id="statsViewOverall" class="statistics-view active">
+      <div class="kpi-grid">
+        <div class="kpi"><span>บุคลากร</span><b id="statsKpiPersonnel">0</b></div>
+        <div class="kpi"><span>คนที่มีเหตุการณ์/การลา</span><b id="statsKpiPeople">0</b></div>
+        <div class="kpi"><span>เหตุการณ์ลงเวลา</span><b id="statsKpiEvents">0</b></div>
+        <div class="kpi"><span>การลาทั้งหมด</span><b id="statsKpiLeave">0 ครั้ง / 0 วัน</b></div>
+        <div class="kpi"><span>การลาที่อยู่ในฐานเตือน</span><b id="statsKpiWarningLeave">0 ครั้ง / 0 วัน</b></div>
+        <div class="kpi"><span>ไปราชการ</span><b id="statsKpiOfficial">0 ครั้ง / 0 วัน</b></div>
+        <div class="kpi"><span>ยกเว้นไม่นับสถิติ</span><b id="statsKpiExcluded">0</b></div>
+      </div>
+      <div class="card"><div class="card-head"><div><h3>สรุปประเภทเหตุการณ์</h3><p class="muted" id="statsTypeSummary"></p></div></div></div>
+      <div class="card"><div class="card-head"><div><h3>ดูสถิติรายบุคคล</h3><p class="muted" id="statsMeta"></p></div></div>
+        <div class="table-wrap pdms-sticky-table stats-table-wrap"><table class="stats-table freeze-name-dept"><thead><tr><th>ชื่อ</th><th>กลุ่ม/ฝ่าย</th><th>มาสาย</th><th>ไม่สแกนเข้า</th><th>ไม่สแกนออก</th><th>ไม่สแกนเข้าและออก</th><th>มาสายและไม่สแกนออก</th><th>การลาทั้งหมด</th><th>ฐานการลาเพื่อเตือน</th><th>ไปราชการ</th><th>รวม</th></tr></thead><tbody id="statsRows"></tbody></table></div>
+        <div class="row actions" style="justify-content:space-between;margin-top:10px"><button class="btn secondary" onclick="PDMS.statisticsPrevPage()">ก่อนหน้า</button><span id="statsPageMeta" class="muted"></span><button class="btn secondary" onclick="PDMS.statisticsNextPage()">ถัดไป</button></div>
+      </div>
+    </div>
+    <div id="statsViewLeave" class="statistics-view">
+      <div class="card"><div class="card-head"><div><h3>ดูรายละเอียดการลา</h3><p class="muted">แยกตามประเภทการลาเดิมใน Master และใช้จำนวนครั้ง/วันจากระบบคำนวณการลากลางเท่านั้น</p></div></div>
+        <div class="toolbar"><label class="field"><span>ประเภทการลา</span><select id="statsLeaveType" onchange="PDMS.renderStatisticsLeaveView()"><option value="">ทั้งหมด</option></select></label></div>
+        <div id="statsLeaveSummary" class="notice neutral"></div>
+        <div class="table-wrap pdms-sticky-table stats-table-wrap"><table class="stats-table freeze-name-dept"><thead><tr><th>ชื่อ</th><th>กลุ่ม/ฝ่าย</th><th>ประเภทการลา</th><th>ครั้ง</th><th>วัน</th><th>อยู่ในฐานเตือน</th><th>แสดงสถิติแยก</th><th></th></tr></thead><tbody id="statsLeaveRows"></tbody></table></div>
+      </div>
+    </div>
+    <div id="statsViewLate" class="statistics-view">
+      <div class="card"><div class="card-head"><div><h3>ดูรายละเอียดการมาสาย</h3><p class="muted">อ่านนาทีสาย เวลาเข้า และเกณฑ์ที่ใช้จากผลลงเวลาที่บันทึกแล้ว</p></div></div>
+        <div class="table-wrap pdms-sticky-table stats-table-wrap"><table class="stats-table freeze-name-dept"><thead><tr><th>ชื่อ</th><th>กลุ่ม/ฝ่าย</th><th>มาสาย</th><th>มาสายและไม่สแกนออก</th><th>รวมครั้ง</th><th>รวมนาทีสาย</th><th></th></tr></thead><tbody id="statsLateRows"></tbody></table></div>
+      </div>
+    </div>
+    <div id="statsViewOfficial" class="statistics-view">
+      <div class="card"><div class="card-head"><div><h3>ดูรายละเอียดไปราชการ</h3><p class="muted">ไปราชการเป็นสถิติแยก ไม่รวมในจำนวนครั้ง/วันลา</p></div></div>
+        <div id="statsOfficialSummary" class="notice neutral"></div>
+        <div class="table-wrap pdms-sticky-table stats-table-wrap"><table class="stats-table freeze-name-dept"><thead><tr><th>ชื่อ</th><th>กลุ่ม/ฝ่าย</th><th>จำนวนครั้ง</th><th>จำนวนวัน</th><th></th></tr></thead><tbody id="statsOfficialRows"></tbody></table></div>
+      </div>
+    </div>
+  </div>
+  <div id="statsDetailModal" class="attendance-cell-detail" style="display:none" onclick="if(event.target===this)PDMS.closeStatisticsDetail()"><div class="attendance-cell-detail-card review-detail-card"><div class="card-head"><div><h3 id="statsDetailTitle">รายละเอียด</h3><p class="muted" id="statsDetailMeta"></p></div><button class="btn secondary" onclick="PDMS.closeStatisticsDetail()">ปิด</button></div><div id="statsDetailBody"></div></div></div>
+</section>

@@ -1,0 +1,34 @@
+<section class="page" data-page="system">
+  <div class="two">
+    <div class="card">
+      <div class="section-title">ตรวจสุขภาพระบบ</div>
+      <div class="section-sub">เปิดหน้านี้จะยังไม่ตรวจข้อมูลอัตโนมัติ กดตรวจเมื่อพร้อม ระบบจะแบ่งตรวจทีละส่วนเพื่อไม่ให้ค้างทั้งหน้า</div>
+      <div class="toolbar"><button class="btn primary" onclick="PDMS.loadSystemHealth()">ตรวจสุขภาพระบบ</button></div>
+      <div id="systemHealth" class="empty">ยังไม่ได้ตรวจ</div>
+    </div>
+    <div class="card">
+      <div class="section-title">ตรวจและกู้คืนงานค้าง</div>
+      <div class="section-sub">การกู้คืนจะล้างเฉพาะสถานะงานที่ค้างของ PDMS และไม่ลบข้อมูลบุคลากร การลา หรือการลงเวลา</div>
+      <div id="recoveryPreview" class="empty">ยังไม่ได้ตรวจ</div>
+      <div class="toolbar">
+        <button class="btn secondary" onclick="PDMS.loadRecoveryPreview()">ตรวจงานค้าง</button>
+        <button class="btn danger" onclick="PDMS.runRecovery()">กู้คืนงานค้าง</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:12px">
+    <div class="section-title">ดูงานที่กำลังประมวลผล</div>
+    <div class="toolbar"><button class="btn secondary" onclick="PDMS.loadJobs()">โหลดรายการงาน</button></div>
+    <div id="jobsBox" class="empty">ยังไม่ได้โหลด</div>
+  </div>
+
+  <div class="card" style="margin-top:12px">
+    <div class="section-title">ดูประวัติการทำงานล่าสุด</div>
+    <div class="toolbar"><button class="btn secondary" onclick="PDMS.loadAudit()">รีเฟรชประวัติ</button></div>
+    <div class="table-wrap pdms-sticky-table">
+      <table><thead><tr><th>เวลา</th><th>การทำงาน</th><th>สถานะ</th><th>ผู้ดำเนินการ</th><th>รายละเอียด</th></tr></thead>
+      <tbody id="auditBody"><tr><td colspan="5" class="empty">ยังไม่ได้โหลด</td></tr></tbody></table>
+    </div>
+  </div>
+</section>

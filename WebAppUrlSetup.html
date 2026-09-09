@@ -1,0 +1,24 @@
+<!doctype html><html><head><base target="_top"><style>
+body{font-family:Arial,sans-serif;padding:16px;color:#202124}label{display:block;font-weight:700;margin-bottom:6px}
+input{width:100%;box-sizing:border-box;padding:10px;border:1px solid #c7c7c7;border-radius:8px;font-size:13px}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}button{border:0;border-radius:8px;padding:9px 13px;cursor:pointer;font-weight:700}
+.primary{background:#1a73e8;color:#fff}.secondary{background:#fff;border:1px solid #c7c7c7}
+.msg{margin-top:12px;padding:10px;border-radius:8px;background:#f8f9fa;white-space:pre-wrap;font-size:12px}.note{font-size:12px;color:#5f6368;margin-top:8px}
+</style></head><body>
+<label>Web App URL ที่ใช้งานจริง</label>
+<input id="url" value="<?= currentUrl ?>" placeholder="https://script.google.com/macros/s/.../exec">
+<div class="note">ใช้ URL จาก Apps Script → Deploy → Manage deployments → Web app URL</div>
+<div class="row">
+<button class="primary" onclick="saveUrl()">บันทึก URL</button>
+<button class="secondary" onclick="copyUrl()">คัดลอก URL</button>
+<button class="secondary" onclick="openUrl()">เปิด URL นี้</button>
+<button class="secondary" onclick="clearUrl()">ล้างค่า</button>
+</div>
+<div id="msg" class="msg">พร้อมตั้งค่า</div>
+<script>
+function m(t){document.getElementById('msg').textContent=t}
+function saveUrl(){const v=url.value.trim();m('กำลังบันทึก...');google.script.run.withSuccessHandler(r=>{url.value=r.url;m('บันทึกแล้ว\n'+r.url)}).withFailureHandler(e=>m('บันทึกไม่สำเร็จ: '+(e&&e.message?e.message:e))).pdmscSetBoundWebAppUrl(v)}
+function copyUrl(){const v=url.value.trim();if(!v){m('ยังไม่มี URL ให้คัดลอก');return;}navigator.clipboard.writeText(v).then(()=>m('คัดลอก URL แล้ว')).catch(()=>{url.select();document.execCommand('copy');m('คัดลอก URL แล้ว')})}
+function openUrl(){const v=url.value.trim();if(!v){m('ยังไม่มี URL');return;}window.open(v,'_blank')}
+function clearUrl(){if(!confirm('ล้าง Web App URL ที่ผูกกับไฟล์นี้หรือไม่?'))return;google.script.run.withSuccessHandler(()=>{url.value='';m('ล้าง URL แล้ว')}).withFailureHandler(e=>m('ล้างไม่สำเร็จ: '+(e&&e.message?e.message:e))).pdmscClearBoundWebAppUrl()}
+</script></body></html>

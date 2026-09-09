@@ -1,0 +1,60 @@
+<!doctype html>
+<html>
+<head>
+<base target="_top">
+<?!= pdmscInclude_('WebStyles'); ?>
+</head>
+<body>
+<div id="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="brand-title">PDMS</div>
+      <div class="brand-sub">Continuous 6M</div>
+    </div>
+    <nav id="nav"></nav>
+    <div class="sidebar-foot">
+      <span id="healthDot" class="dot neutral"></span>
+      <span id="sidebarStatus">กำลังเชื่อมต่อ...</span>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <button class="icon-btn" id="menuBtn" onclick="PDMS.toggleSidebar()">☰</button>
+      <div>
+        <div class="page-title" id="pageTitle">Dashboard</div>
+        <div class="page-sub" id="periodText">รอบ 6 เดือน: ยังไม่ได้ตั้งค่า</div>
+      </div>
+      <div class="top-actions">
+        <span class="build" id="buildText"></span>
+        <button class="btn secondary" onclick="PDMS.refreshCurrent()">รีเฟรช</button>
+      </div>
+    </header>
+
+    <main class="content">
+      <?!= pdmscInclude_('Page_Dashboard'); ?>
+      <?!= pdmscInclude_('Page_Personnel'); ?>
+      <?!= pdmscInclude_('Page_Leave'); ?>
+      <?!= pdmscInclude_('Page_Attendance'); ?>
+      <?!= pdmscInclude_('Page_Review'); ?>
+      <?!= pdmscInclude_('Page_FinalEvents'); ?>
+      <?!= pdmscInclude_('Page_Statistics'); ?>
+      <?!= pdmscInclude_('Page_Warnings'); ?>
+      <?!= pdmscInclude_('Page_Settings'); ?>
+      <?!= pdmscInclude_('Page_Placeholders'); ?>
+      <?!= pdmscInclude_('Page_System'); ?>
+    </main>
+  </div>
+
+  <div id="busyOverlay" class="busy-overlay" aria-live="polite"><div class="busy-box"><div class="spinner"></div><div id="busyText">กำลังโหลดข้อมูล…</div><div class="busy-note">กรุณารอจนกระบวนการเสร็จ เพื่อป้องกันการกดซ้ำ</div></div></div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite">
+    <button class="toast-close" type="button" aria-label="ปิดข้อความแจ้งเตือน" onclick="PDMS.closeToast()">×</button>
+    <div id="toastMessage" class="toast-message"></div>
+  </div>
+</div>
+
+<script>window.PDMS_INITIAL_ROUTE = <?!= JSON.stringify(initialRoute) ?>;</script>
+<?!= pdmscInclude_('WebCommon'); ?>
+</body>
+</html>
